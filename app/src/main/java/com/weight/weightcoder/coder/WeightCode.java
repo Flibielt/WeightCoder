@@ -55,7 +55,7 @@ public class WeightCode {
 	}
 	
 	private static String deleteDoubleSpaces(String coded) {
-		if (!coded.contains("  ")) {
+		if (coded.indexOf("  ") != -1) {
 			return deleteDoubleSpaces(coded.replaceAll("  ", " "));
 		}
 		
