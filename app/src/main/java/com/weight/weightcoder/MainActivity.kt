@@ -1,5 +1,7 @@
 package com.weight.weightcoder
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -7,33 +9,35 @@ import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import com.weight.weightcoder.coder.WeightCode
-import kotlinx.android.synthetic.*
-import android.view.View.OnFocusChangeListener
 import android.widget.Button
-import kotlinx.android.synthetic.main.activity_main.*
 import java.lang.Exception
-import android.content.Context.INPUT_METHOD_SERVICE
 import android.view.inputmethod.InputMethodManager
+import android.text.method.ScrollingMovementMethod
+
+
 
 
 class MainActivity : AppCompatActivity() {
+
+    private var myClipboard: ClipboardManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         setContentView(R.layout.activity_main)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        var textView = findViewById<TextView>(R.id.result_text_view)
-        var editText = findViewById<EditText>(R.id.input_text)
+        val textView = findViewById<TextView>(R.id.result_text_view)
+        textView.movementMethod = ScrollingMovementMethod()
+        val editText = findViewById<EditText>(R.id.input_text)
         editText.hint = "The input text"
-        textView.text = WeightCode.code("ASD")
 
-        var okButton = findViewById<Button>(R.id.ok_button)
-        var modeButton = findViewById<Button>(R.id.mode_button)
-        var pasteButton = findViewById<Button>(R.id.paste_button)
-        var copyButton = findViewById<Button>(R.id.copy_button)
-        var clearButton = findViewById<Button>(R.id.clear_button)
+        val okButton = findViewById<Button>(R.id.ok_button)
+        val modeButton = findViewById<Button>(R.id.mode_button)
+        val pasteButton = findViewById<Button>(R.id.paste_button)
+        val copyButton = findViewById<Button>(R.id.copy_button)
+        val clearButton = findViewById<Button>(R.id.clear_button)
         var codeText = true
+        myClipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager?
 
         okButton.setOnClickListener {
             editText.clearFocus()
@@ -47,7 +51,7 @@ class MainActivity : AppCompatActivity() {
                     textView.text = "Wrong code."
                 }
             }
-            editText.hideKeayboard()
+            editText.hideKeyboard()
         }
 
         modeButton.setOnClickListener {
@@ -59,14 +63,23 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        copyButton.setOnClickListener {
+            myClipboard?.setPrimaryClip(ClipData.newPlainText("text", textView.text))
+        }
 
+        pasteButton.setOnClickListener {
+            val abc = myClipboard?.getPrimaryClip()
+            val item = abc?.getItemAt(0)
+
+            editText.setText(item?.text.toString())
+        }
 
         clearButton.setOnClickListener {
             editText.text.clear()
         }
     }
 
-    fun View.hideKeayboard() {
+    private fun View.hideKeyboard() {
         val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(windowToken, 0)
     }
